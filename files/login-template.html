@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<!--
+
+This template can be modified and used to customize the login page. To replace
+the login page, set master configuration option oauthConfig.templates.login to
+the path of the template file. Don't remove parameters in curly braces below.
+
+oauthConfig:
+  templates:
+    login: templates/login-template.html
+
+-->
+<html>
+  <head>
+    <title>Login</title>
+    <style type="text/css">
+      body {
+        font-family: "Open Sans", Helvetica, Arial, sans-serif;
+        font-size: 14px;
+        margin: 15px;
+        background-image: url("https://wac.das.myatos.net/portal/assets/images/backgrounds/background-sso3.jpg");
+        background-size: 100%;
+      }
+
+      input {
+        margin-bottom: 10px;
+        width: 250px;
+      }
+
+      .error {
+        color: red;
+        margin-bottom: 10px;
+      }
+      .login {
+        background-color: white;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        border-radius: 25px;
+        border: 2px solid black;
+        padding: 20px;
+        width: 300px;
+        height: 200px; 
+      }
+    </style>
+  </head>
+  <body>
+
+    {{ if .Error }}
+      <div class="error">{{ .Error }}</div>
+      <!-- Error code: {{ .ErrorCode }} -->
+    {{ end }}
+
+    <div class="login">
+    <!-- Identity provider name: {{ .ProviderName }} -->
+    <form action="{{ .Action }}" method="POST">
+      <input type="hidden" name="{{ .Names.Then }}" value="{{ .Values.Then }}">
+      <input type="hidden" name="{{ .Names.CSRF }}" value="{{ .Values.CSRF }}">
+
+      <div>
+        <label for="inputUsername">AMOS Username</label>
+      </div>
+      <div>
+        <input type="text" id="inputUsername" autofocus="autofocus" type="text" name="{{ .Names.Username }}" value="{{ .Values.Username }}">
+      </div>
+
+      <div>
+        <label for="inputPassword">Password</label>
+      </div>
+      <div>
+        <input type="password" id="inputPassword" type="password" name="{{ .Names.Password }}" value="">
+      </div>
+
+      <center>
+      <button type="submit">Log In</button>
+      <p>
+      <img src="https://www.openshift.com/images/logos/powered_by_openshift.png">
+      </center>
+
+    </form>
+    </div>
+
+  </body>
+</html>

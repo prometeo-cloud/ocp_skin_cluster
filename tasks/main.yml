@@ -1,0 +1,49 @@
+---
+- set_fact: 
+    openshift:
+      common:
+        config_base: /etc/origin
+
+- name: Ensure directory exists
+  become: True
+  file:
+    path: "{{ openshift.common.config_base | default('/etc/origin') }}/custom"
+    state: directory
+
+- name: Find all files which we will copy
+  find:
+    path: files/
+    hidden: yes
+    recurse: yes
+  register: find_files
+  delegate_to: localhost
+
+- name: Copy all files to directory onto servers
+  become: True
+  copy:
+    src: "{{ item.path }}"
+    dest: "{{ openshift.common.config_base | default('/etc/origin') }}/custom/"
+  with_items: "{{ find_files.files }}"
+  register: files_copied
+
+- name: Modify yaml - Add extra CSS to master-config.yml
+  become: True
+  modify_yaml:
+    dest: "{{ openshift.common.config_base}}/master/master-config.yaml"
+    yaml_key: 'assetConfig.extensionStylesheets'
+    yaml_value: 
+      - /etc/origin/custom/logo.css
+  register: masterconfig_extracss
+
+- name: Modify yaml - Add new login template
+  become: True
+  modify_yaml:
+    dest: "{{ openshift.common.config_base}}/master/master-config.yaml"
+    yaml_key: 'oauthConfig.templates.login'
+    yaml_value: '/etc/origin/custom/login-template.html'
+  register: masterconfig_loginpage
+
+- include_tasks: tasks/restart_masters.yml
+  with_items:
+    - "{{ groups['all'] }}"
+
