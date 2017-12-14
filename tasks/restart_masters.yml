@@ -13,6 +13,7 @@
   delegate_to: "{{ item }}"
   systemd: name=atomic-openshift-master state=restarted
   register: restart_master_api
+  failed_when: "'Unit atomic-openshift-master.service could not be found.' not in restart_master.stdout and restart_master.rc != 0"
   when:
     - master_service.stdout.find('Loaded:')
     - (files_copied|changed or masterconfig_extracss|changed or masterconfig_loginpage|changed)
@@ -23,6 +24,7 @@
   delegate_to: "{{ item }}"
   systemd: name=atomic-openshift-master-api state=restarted
   register: restart_master_api
+  failed_when: "'Unit atomic-openshift-master-api.service could not be found.' not in restart_master_api.stdout and restart_master_api.rc != 0"
   when:
     - master_service_api.stdout.find('Loaded:')
     - (files_copied|changed or masterconfig_extracss|changed or masterconfig_loginpage|changed)
