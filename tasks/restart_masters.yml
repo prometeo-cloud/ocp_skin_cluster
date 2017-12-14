@@ -1,30 +1,34 @@
 ---
-- name: Check which type of service we should restart
+- name: Check if atomic-openshift-master exists
   shell: systemctl status atomic-openshift-master
   register: master_service
 
-- name: restart master api - cluster with single master 
-  become: True
-  run_once: true
+- name: Check if atomic-openshift-master-api exists
+  shell: systemctl status atomic-openshift-master
+  register: master_service_api
+
+- name: restart master api - cluster with single master
+  become: "True"
+  run_once: "True"
   delegate_to: "{{ item }}"
-  systemd: name=atomic-openshift-master-api state=restarted
+  systemd: name=atomic-openshift-master state=restarted
   register: restart_master_api
-  when: 
+  when:
     - master_service.stdout.find('Loaded:')
     - (files_copied|changed or masterconfig_extracss|changed or masterconfig_loginpage|changed)
 
 - name: restart master api - cluster with multiple masters
-  become: True
-  run_once: true
+  become: "True"
+  run_once: "True"
   delegate_to: "{{ item }}"
   systemd: name=atomic-openshift-master-api state=restarted
   register: restart_master_api
-  when: 
-    - master_service.stdout.find('Unit atomic-openshift-master.service could not be found')
+  when:
+    - master_service_api.stdout.find('Loaded:')
     - (files_copied|changed or masterconfig_extracss|changed or masterconfig_loginpage|changed)
 
 - name: Waiting for service to be up on first master
-  run_once: true
+  run_once: "True"
   delegate_to: "{{ item }}"
   wait_for:
     host: "{{ item }}"
