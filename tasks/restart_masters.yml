@@ -4,7 +4,7 @@
   register: master_service
 
 - name: Check if atomic-openshift-master-api exists
-  shell: systemctl status atomic-openshift-master
+  shell: systemctl status atomic-openshift-master-api
   register: master_service_api
 
 - name: restart master api - cluster with single master
