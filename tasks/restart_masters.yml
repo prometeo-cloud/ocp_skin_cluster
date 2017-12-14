@@ -1,11 +1,27 @@
 ---
-- name: restart master api on first master
+- name: Check which type of service we should restart
+  shell: systemctl status atomic-openshift-master
+  register: master_service
+
+- name: restart master api - cluster with single master 
   become: True
   run_once: true
   delegate_to: "{{ item }}"
   systemd: name=atomic-openshift-master-api state=restarted
   register: restart_master_api
-  when: files_copied|changed or masterconfig_extracss|changed or masterconfig_loginpage|changed
+  when: 
+    - master_service.stdout.find('Loaded:')
+    - (files_copied|changed or masterconfig_extracss|changed or masterconfig_loginpage|changed)
+
+- name: restart master api - cluster with multiple masters
+  become: True
+  run_once: true
+  delegate_to: "{{ item }}"
+  systemd: name=atomic-openshift-master-api state=restarted
+  register: restart_master_api
+  when: 
+    - master_service.stdout.find('Unit atomic-openshift-master.service could not be found')
+    - (files_copied|changed or masterconfig_extracss|changed or masterconfig_loginpage|changed)
 
 - name: Waiting for service to be up on first master
   run_once: true
