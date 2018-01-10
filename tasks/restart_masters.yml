@@ -4,6 +4,11 @@
   ignore_errors: "True"
   register: master_service
 
+- name: Check if atomic-openshift-master-controllers exists
+  shell: systemctl status atomic-openshift-master-controllers
+  ignore_errors: "True"
+  register: master_service_controllers
+
 - name: Check if atomic-openshift-master-api exists
   shell: systemctl status atomic-openshift-master-api
   ignore_errors: "True"
@@ -18,6 +23,17 @@
   when:
     - master_service.stdout.find('Loaded:')
     - (files_copied|changed or masterconfig_extracss|changed or masterconfig_loginpage|changed)
+
+- name: restart master controllers - cluster with multiple masters
+  become: "True"
+  run_once: "True"
+  delegate_to: "{{ item }}"
+  systemd: name=atomic-openshift-master-controllers state=restarted
+  register: restart_master_api
+  when:
+    - master_service_controllers.stdout.find('Loaded:')
+    - (files_copied|changed or masterconfig_extracss|changed or masterconfig_loginpage|changed)
+
 
 - name: restart master api - cluster with multiple masters
   become: "True"
