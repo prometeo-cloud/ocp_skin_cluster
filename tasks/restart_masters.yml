@@ -17,6 +17,7 @@
 - name: restart master api - cluster with single master
   become: "True"
   run_once: "True"
+  ignore_errors: "True"
   delegate_to: "{{ item }}"
   systemd: name=atomic-openshift-master state=restarted
   register: restart_master_api
@@ -27,6 +28,7 @@
 - name: restart master controllers - cluster with multiple masters
   become: "True"
   run_once: "True"
+  ignore_errors: "True"
   delegate_to: "{{ item }}"
   systemd: name=atomic-openshift-master-controllers state=restarted
   register: restart_master_api
@@ -39,6 +41,7 @@
   become: "True"
   run_once: "True"
   delegate_to: "{{ item }}"
+  ignore_errors: "True"
   systemd: name=atomic-openshift-master-api state=restarted
   register: restart_master_api
   when:
