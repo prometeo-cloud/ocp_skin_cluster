@@ -11,6 +11,7 @@
     state: directory
 
 - name: Find all files which we will copy
+  become: "False"
   find:
     path: "{{ role_path }}/files/"
     hidden: "yes"
